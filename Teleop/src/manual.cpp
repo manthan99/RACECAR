@@ -1,9 +1,12 @@
 /*
 Node to publish data for velocity and steering control
 Teleop Control
-published topics -  /cmd_vel  type -twist
+published topics -  /cmd_vel1  type -twist
+published topic -   /mode      type -Int64 (mode=1->manual mode=0->auto)
 subscribed topics - /joy      type -snesor_msgs/Joy
 x button - activation
+RB - manual mode
+LB - auto mode
 RT - forward throttle
 LT - reverse throttle
 Left Joystick - steering control
@@ -15,11 +18,23 @@ Author - Manthan Patel
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
 #include <std_msgs/Int8.h>
+#include <std_msgs/Int64.h>
 #include <geometry_msgs/Twist.h>
 
+#define wheelbase 0.35
+
 geometry_msgs::Twist manual_control ;
+geometry_msgs::Twist auto_control ;
 ros::Publisher control;
+ros::Publisher mode;
 ros::Subscriber joy_sub; 
+ros::Subscriber auto_vel;
+int flag = 1;
+std_msgs::Int64 mode_status ;
+float omega = 0;
+float v;
+float radius;
+float steering_angle;
 
 //mapping function
 
@@ -27,9 +42,44 @@ double fmap (double toMap, double in_min, double in_max, double out_min, double 
   return (toMap - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+//function for converting the differntial velocity into ackermann velocity
+
+void velCallback(const geometry_msgs::Twist::ConstPtr& data)
+{
+  if (data->linear.x >= 0)
+  {
+    auto_control.linear.x = fmap(data->linear.x,0.5,1,100,105);
+  }
+  omega = (-1)*data->angular.z;
+  v = 0.5;
+  radius= v/omega; //at the C.M
+  steering_angle = (180/3.146)*wheelbase/(std::sqrt(radius*radius-wheelbase*wheelbase/4));
+  if(omega<=0)
+    steering_angle = -steering_angle;
+  steering_angle = steering_angle + 95 ;
+  if(steering_angle>135)
+    steering_angle = 135;
+  if(steering_angle<55)
+    steering_angle = 55;
+  auto_control.angular.z = steering_angle;
+
+}
+
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {   
 
+if(joy->buttons[5]==1)
+{
+  flag=1; //manual mode
+}
+
+if(joy->buttons[4]==1)
+{
+  flag=0; //auto mode
+}
+
+if(flag==1)
+{
 //activation button  
 if(joy->buttons[2]==1)
 {
@@ -57,18 +107,26 @@ else
 {
 manual_control.angular.z = 95;
 manual_control.linear.x = 90;
-control.publish(manual_control);
+//control.publish(manual_control);
 }
 
-control.publish(manual_control);
+//control.publish(manual_control);
 }
+
+mode_status.data = flag;
+//mode.publish(mode_status);
+}
+
 
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "teleop_turtle");
   ros::NodeHandle nh;
-  control = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+  control = nh.advertise<geometry_msgs::Twist>("cmd_vel1", 1);
   joy_sub= nh.subscribe<sensor_msgs::Joy>("joy", 10, &joyCallback);
+  auto_vel = nh.subscribe<geometry_msgs::Twist>("cmd_vel", 5, &velCallback);
+  mode = nh.advertise<std_msgs::Int64>("mode",1);
+
   //default values
   manual_control.angular.z = 95;
   manual_control.linear.x = 90;
@@ -77,7 +135,11 @@ int main(int argc, char** argv)
   
   while (ros::ok())
   {
+    if(flag==1)
     control.publish(manual_control);
+    else if(flag==0)
+    control.publish(auto_control);
+    mode.publish(mode_status);
     ros::spinOnce();
     loop_rate.sleep();  
   }
