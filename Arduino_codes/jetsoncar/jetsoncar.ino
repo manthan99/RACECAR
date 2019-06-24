@@ -63,7 +63,7 @@ chatter.publish(&str_msg);
  
 }
  
-ros::Subscriber<geometry_msgs::Twist> driveSubscriber("/cmd_vel", &driveCallback) ;
+ros::Subscriber<geometry_msgs::Twist> driveSubscriber("/cmd_vel1", &driveCallback) ;
 
 void setup(){
   pinMode(13, OUTPUT);
