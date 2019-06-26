@@ -107,14 +107,14 @@ else
 {
 manual_control.angular.z = 95;
 manual_control.linear.x = 90;
-//control.publish(manual_control);
+control.publish(manual_control);
 }
 
-//control.publish(manual_control);
+control.publish(manual_control);
 }
 
 mode_status.data = flag;
-//mode.publish(mode_status);
+mode.publish(mode_status);
 }
 
 

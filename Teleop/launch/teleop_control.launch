@@ -1,0 +1,8 @@
+<launch>
+
+<node pkg="teleop" type="manual" name="manual" respawn="true" output="screen" />
+<node pkg="joy" type="joy_node" name="joy_node" respawn="true" output="screen" />
+
+</launch>
+
+

@@ -57,7 +57,9 @@ chatter.publish(&str_msg);
   delay(10);
   str_msg.data = data.linear.x;
   if(data.linear.x<85 || data.linear.x>95)
-  electronicSpeedController.write(data.linear.x) ;
+  electronicSpeedController.write(data.linear.x);
+  else if(data.linear.x == 90)
+  electronicSpeedController.write(data.linear.x);
   digitalWrite(13, HIGH-digitalRead(13));  //toggle led  
   chatter.publish(&str_msg);
  
@@ -75,7 +77,7 @@ void setup(){
   nodeHandle.subscribe(driveSubscriber) ;
   // Attach the servos to actual pins
   steeringServo.attach(9); // Steering servo is attached to pin 9
-  electronicSpeedController.attach(11); // ESC is on pin 10
+  electronicSpeedController.attach(11); // ESC is on pin 11
   // Initialize Steering and ESC setting
   // Steering centered is 90, throttle at neutral is 90
   steeringServo.write(95) ;
