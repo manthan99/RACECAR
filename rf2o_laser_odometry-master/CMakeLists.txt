@@ -1,5 +1,13 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(rf2o_laser_odometry)
+PROJECT(rf2o_laser_odometry)
+
+CMAKE_MINIMUM_REQUIRED(VERSION 3.3)
+# Require C++17
+
+if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+else()
+	set(CMAKE_CXX_STANDARD 17)
+endif()
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -10,20 +18,13 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   sensor_msgs
   std_msgs
-  tf  
+  tf
+  cmake_modules
 )
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
-find_package(cmake_modules REQUIRED)
-find_package(Eigen REQUIRED)
-find_package(MRPT REQUIRED base obs maps slam)
-#include_directories(${MRPT_INCLUDE_DIRS})
-#MESSAGE( STATUS "MRPT_INCLUDE_DIRS: " ${MRPT_INCLUDE_DIRS})
-#link_directories(${MRPT_LIBRARY_DIRS})
-#MESSAGE( STATUS "MRPT_LIBRARY_DIRS: " ${MRPT_LIBS})
-
-
+find_package(Eigen3 REQUIRED)
 
 ###################################
 ## catkin specific configuration ##
@@ -35,10 +36,10 @@ find_package(MRPT REQUIRED base obs maps slam)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
- LIBRARIES laser_odometry
+ INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIRS}
+ LIBRARIES ${PROJECT_NAME}
  CATKIN_DEPENDS nav_msgs roscpp sensor_msgs std_msgs tf
- DEPENDS system_lib
+ DEPENDS #Eigen3
 )
 
 ## Specify additional locations of header files
@@ -46,18 +47,16 @@ catkin_package(
 include_directories(include)
 
 include_directories(
+  SYSTEM
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
+
+## Declare a cpp library
+add_library(${PROJECT_NAME} src/CLaserOdometry2D.cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 ## Declare a cpp executable
-add_executable(rf2o_laser_odometry_node src/CLaserOdometry2D.cpp)
-
-## Specify libraries to link a library or executable target against
-target_link_libraries(rf2o_laser_odometry_node
-   ${catkin_LIBRARIES}
-   ${Boost_LIBRARIES}
-   ${EIGEN_LIBRARIES}
-   ${MRPT_LIBS}
-)
+add_executable(rf2o_laser_odometry_node src/CLaserOdometry2DNode.cpp)
+target_link_libraries(rf2o_laser_odometry_node ${PROJECT_NAME} ${catkin_LIBRARIES})
