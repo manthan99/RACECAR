@@ -27,6 +27,9 @@ void odomCallback(nav_msgs::Odometry msg)
                                                (0.0)(0.0)(0.0)(0.0)(0.0)(0.01);
 
     msg.header.frame_id="base_link";
+
+    msg.twist.twist.linear.x = (-1)*msg.twist.twist.linear.x;
+    msg.twist.twist.linear.y = 0;
     //publish the message
     odom_pub.publish(msg);
     //last_time = current_time;

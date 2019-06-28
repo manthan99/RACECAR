@@ -66,7 +66,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "imu_node");
     ros::NodeHandle n;
     imu_pub2=n.advertise<Float64>("/imu/orientation",1);
-    ros::Subscriber imu_sub=n.subscribe<geometry_msgs::Twist>("/raw_orientation",5,imuCallback);
+    ros::Subscriber imu_sub=n.subscribe<geometry_msgs::Twist>("arduino_nano/raw_orientation",5,imuCallback);
     imu_pub = n.advertise<sensor_msgs::Imu>("/imu", 5);
     ros::spin();
     return 0;

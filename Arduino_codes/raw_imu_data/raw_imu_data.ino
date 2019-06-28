@@ -1,11 +1,11 @@
 #include<Wire.h>
-#include <ros.h>
-#include <geometry_msgs/Twist.h>
+//#include <ros.h>
+//#include <geometry_msgs/Twist.h>
 
-ros::NodeHandle nh;
-geometry_msgs::Twist rpy_data;
+//ros::NodeHandle nh;
+//geometry_msgs::Twist rpy_data;
 
-ros::Publisher rpy_publisher("raw_orientation", &rpy_data);
+//ros::Publisher rpy_publisher("raw_orientation", &rpy_data);
 
 
 const int MPU6050_addr=0x68;
@@ -13,14 +13,14 @@ int16_t AccX,AccY,AccZ,Temp,GyroX,GyroY,GyroZ;
 void setup(){
 
   
-  nh.initNode();
-  nh.advertise(rpy_publisher);
+ // nh.initNode();
+ // nh.advertise(rpy_publisher);
   Wire.begin();
   Wire.beginTransmission(MPU6050_addr);
   Wire.write(0x6B);
   Wire.write(0);
   Wire.endTransmission(true);
-  //Serial.begin(9600);
+  Serial.begin(9600);
 }
 void loop(){
   Wire.beginTransmission(MPU6050_addr);
@@ -35,15 +35,15 @@ void loop(){
   GyroY=Wire.read()<<8|Wire.read();
   GyroZ=Wire.read()<<8|Wire.read();
   
-  rpy_data.angular.z = AccX;
-  rpy_publisher.publish(&rpy_data);
-  nh.spinOnce();
+  //rpy_data.angular.z = AccX;
+  //rpy_publisher.publish(&rpy_data);
+  //nh.spinOnce();
   delay(100);
-//  Serial.print("AccX = "); Serial.print(AccX);
-//  Serial.print(" || AccY = "); Serial.print(AccY);
-//  Serial.print(" || AccZ = "); Serial.print(AccZ);
-//  Serial.print(" || Temp = "); Serial.print(Temp/340.00+36.53);
-//  Serial.print(" || GyroX = "); Serial.print(GyroX);
-//  Serial.print(" || GyroY = "); Serial.print(GyroY);
-//  Serial.print(" || GyroZ = "); Serial.println(GyroZ);
+  Serial.print("AccX = "); Serial.print(AccX);
+  Serial.print(" || AccY = "); Serial.print(AccY);
+  Serial.print(" || AccZ = "); Serial.print(AccZ);
+  Serial.print(" || Temp = "); Serial.print(Temp/340.00+36.53);
+  Serial.print(" || GyroX = "); Serial.print(GyroX);
+  Serial.print(" || GyroY = "); Serial.print(GyroY);
+  Serial.print(" || GyroZ = "); Serial.println(GyroZ);
 }

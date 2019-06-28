@@ -3,6 +3,9 @@
 <node pkg="teleop" type="manual" name="manual" respawn="true" output="screen" />
 <node pkg="joy" type="joy_node" name="joy_node" respawn="true" output="screen" />
 
+<node ns="arduino_nano" name="arduino_nano_1" pkg="rosserial_python" type="serial_node.py" args="/dev/ttyUSB1" output="screen" respawn="true" />
+<node ns="arduino_nano" name="arduino_nano_2" pkg="rosserial_python" type="serial_node.py" args="/dev/ttyUSB2" output="screen" respawn="true" />
+
 </launch>
 
 
